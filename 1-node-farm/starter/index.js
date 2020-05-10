@@ -43,6 +43,12 @@ const url = require('url');
 
 // ======== Server
 // http.createServer([options][, requestListener])
+
+// saving the json file in data
+// fs.readFileSync(path[, options])
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
+const dataObj = JSON.parse(data);
+
 const server = http.createServer((req, res) => {
   const pathName = req.url;
   //to show the content of requested url
@@ -53,6 +59,26 @@ const server = http.createServer((req, res) => {
     res.end("This is OVERVIEW");
   } else if (pathName === '/product') {
     res.end("This is PRODUCT");
+
+
+  } else if (pathName === '/api') {
+
+    //callback function的主要內容: 將傳入的JSON檔案顯示在頁面上
+    //(data的內容先寫在global scope裡面就不用每一次進入/api的時候都讀取一次)
+
+    // response.writeHead(statusCode[, statusMessage][, headers])
+    //  注意 statusCode 要輸入200
+    //    headers <Object> 透過包含header內容的物件，作為 parameter傳入
+    res.writeHead(200, {
+      "Content-type": "application/json",
+      'my-own-header': "It's a JSON file!!"
+      // check inside the Chrome console => Newwork => Name:  => Header
+    });
+    // res.end('<h1>API page</h1>');
+    res.end(data);
+    //
+    console.log("route /api loaded!");
+
   } else {
     //
     res.writeHead(404, {
