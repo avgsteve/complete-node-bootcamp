@@ -4,6 +4,7 @@
 //fs = file system   https://nodejs.org/dist/latest-v12.x/docs/api/fs.html
 const fs = require('fs');
 const http = require('http');
+const url = require('url');
 
 // // === fs.readFileSync(path[, options]) // Blocking code execution
 // const textIn = fs.readFileSync('./txt/input.txt', 'utf-8');
@@ -43,13 +44,26 @@ const http = require('http');
 // ======== Server
 // http.createServer([options][, requestListener])
 const server = http.createServer((req, res) => {
-  //to look inside the req
-  console.log('======REQEUST=====');
-  console.log(req);
-  //to look inside the res
-  // console.log('======RESPONSE=====');
-  // console.log(req);
-  res.end('Hello from the server AGAIN!!');
+  const pathName = req.url;
+  //to show the content of requested url
+  console.log(pathName);
+  //
+
+  if (pathName === '/' || pathName === '/overview') {
+    res.end("This is OVERVIEW");
+  } else if (pathName === '/product') {
+    res.end("This is PRODUCT");
+  } else {
+    //
+    res.writeHead(404, {
+      "Content-type": "text/html",
+      'my-own-header': 'hello'
+      // check inside the Chrome console => Newwork => Name:  => Header
+    });
+    //
+    res.end("<h1>The page is not found!</h1>");
+  }
+
 });
 
 //server.listen() Starts the HTTP server listening for connections. This method is identical to server.listen() from net.Server.
