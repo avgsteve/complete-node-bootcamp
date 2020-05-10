@@ -20,22 +20,39 @@ const http = require('http');
 // });
 // console.log('\nReading file ...');
 
-fs.readFile('./txt/start.txt', 'utf-8', (err, data1) => {
+// fs.readFile('./txt/start.txt', 'utf-8', (err, data1) => {
+//
+//   if (err) {
+//     return console.log('ERROR! ❌ ');
+//   }
+//
+//   fs.readFile(`./txt/${data1}.txt`, 'utf-8', (err, data2) => {
+//     console.log(data2);
+//     fs.readFile('./txt/append.txt', 'utf-8', (err, data3) => {
+//       console.log(data3);
+//
+//       //fs.writeFile(file, data[, options], callback)
+//       fs.writeFile('./txt/final.txt', `${data2}\n${data3}`, 'utf-8', err => {
+//         console.log("You file has been written! \u2728");
+//       });
+//     });
+//   });
+// });
+// console.log('Reading file 1 & 2...');
 
-  if (err) {
-    return console.log('ERROR! ❌ ');
-  }
-
-  fs.readFile(`./txt/${data1}.txt`, 'utf-8', (err, data2) => {
-    console.log(data2);
-    fs.readFile('./txt/append.txt', 'utf-8', (err, data3) => {
-      console.log(data3);
-
-      //fs.writeFile(file, data[, options], callback)
-      fs.writeFile('./txt/final.txt', `${data2}\n${data3}`, 'utf-8', err => {
-        console.log("You file has been written! \u2728");
-      });
-    });
-  });
+// ======== Server
+// http.createServer([options][, requestListener])
+const server = http.createServer((req, res) => {
+  //to look inside the req
+  console.log('======REQEUST=====');
+  console.log(req);
+  //to look inside the res
+  // console.log('======RESPONSE=====');
+  // console.log(req);
+  res.end('Hello from the server AGAIN!!');
 });
-console.log('Reading file 1 & 2...');
+
+//server.listen() Starts the HTTP server listening for connections. This method is identical to server.listen() from net.Server.
+server.listen(8000, '127.0.0.1', () => {
+  console.log('Listen to request on port 8000');
+});
