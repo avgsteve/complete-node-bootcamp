@@ -7,7 +7,8 @@ const http = require('http');
 const url = require('url');
 const replaceTemplate = require('./modules/replaceTemplate');
 //  https://www.npmjs.com/package/slugify
-const slugify = require('slugify');
+const slugify = require('slugify'); //version in package.json  "slugify": "^1.4.0" . To install previous version: npm install slugify@1.0.0
+
 
 /* // // === fs.readFileSync(path[, options]) // Blocking code execution
 // const textIn = fs.readFileSync('./txt/input.txt', 'utf-8');
