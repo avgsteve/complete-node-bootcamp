@@ -41,26 +41,80 @@ const url = require('url');
 // });
 // console.log('Reading file 1 & 2...');
 
-// ======== Server
-// http.createServer([options][, requestListener])
 
-// saving the json file in data
+// Part 1-1 =================================
+const replaceTemplate = (template, product) => {
+  //template is HTML in String form(type) , product is Obj
+  let output = template.replace(/{%PRODUCTNAME%}/g, product.productName);
+  // output is now new string and other template string to be replace too
+  output = output.replace(/{%IMAGE%}/g, product.image);
+  output = output.replace(/{%PRICE%}/g, product.price);
+  output = output.replace(/{%FROM%}/g, product.from);
+  output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
+  output = output.replace(/{%QUANTITY%}/g, product.quantity);
+  output = output.replace(/{%DESCRIPTION%}/g, product.description);
+  output = output.replace(/{%ID%}/g, product.id);
+
+  if (!product.organic) {
+    // output = template.replace(/{%NOT_ORGANIC%}/g, product.organic);
+    output = output.replace(/{%NOT_ORGANIC%}/g, 'not-organic');
+    //        display: none;
+  }
+  return output; //將修改完的String(HTML code)傳出
+}; //end of function replaceTemplate = (template, product)
+
+// Part 1-2 =================================
+// saving the json file in variable
 // fs.readFileSync(path[, options])
+const tempOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, 'utf-8');
+const tempCard = fs.readFileSync(`${__dirname}/templates/template-card.html`, 'utf-8');
+const tempProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`, 'utf-8');
+//
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 const dataObj = JSON.parse(data);
 
+// Part 2 server response
+// ======== Server (url event and response)
 const server = http.createServer((req, res) => {
+  // http.createServer([options][, requestListener])
+
+  //
   const pathName = req.url;
-  //to show the content of requested url
-  console.log(pathName);
+  console.log("=======================");
+  console.log(`pathName: ${pathName}`); //to show current requested url
+  console.log(`req.url: ${req.url}`); //to show current requested url
   //
 
+  console.log('---- url.parse():'); //to show current requested url
+  console.log(url.parse(req.url, true)); // ex: 127.0.0.1:8000/product?id=0
+  /*  ==>  url.parse(urlString[, parseQueryString[, slashesDenoteHost]])
+      urlString <string>  ==>   The URL string to parse.
+      parseQueryString <boolean> ==>  If true, the query property will always be set to an object returned by the querystring module's parse() method. If false, the query property on the returned URL object will be an unparsed, undecoded string. Default: false.
+  */
+
+
+  //根據pathName內容進行以下頁面的顯示和處理方式
+  // === loads Overview page ===
   if (pathName === '/' || pathName === '/overview') {
-    res.end("This is OVERVIEW");
+    res.writeHead(200, {
+      'Content-type': 'text/html'
+    });
+
+    // 將JSON(dataObj)的內容，透過function (map + replaceTemplate)轉換要輸出的HTML Array
+    const cardsHtml = dataObj.map(element =>
+      // 將Array裡面的物件透過map傳入replaceTemplate後替換掉 template-card.html (param: tempCard)中所有的template string的內容 {%XXXX%}
+
+      //replaceTemplate(tempCard, element) 之後 產生的結果是新的Array(存在 cardsHtml)
+      replaceTemplate(tempCard, element)).join(''); //.join將map()之後的結果join，將Array內容合併成單一的HTML字串(cardsHtml)
+
+    const output = tempOverview.replace('{%PRODUCT_CARDS%}', cardsHtml);
+
+    res.end(output); //template-overview.html
+
   } else if (pathName === '/product') {
     res.end("This is PRODUCT");
 
-
+    // === api page ===
   } else if (pathName === '/api') {
 
     //callback function的主要內容: 將傳入的JSON檔案顯示在頁面上
@@ -76,11 +130,10 @@ const server = http.createServer((req, res) => {
     });
     // res.end('<h1>API page</h1>');
     res.end(data);
-    //
     console.log("route /api loaded!");
 
+    // === "Page not found" page ===
   } else {
-    //
     res.writeHead(404, {
       "Content-type": "text/html",
       'my-own-header': 'hello'
