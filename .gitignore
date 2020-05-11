@@ -1,4 +1,5 @@
-
+node_modules/
+1-node-farm/starter/node_modules/
 1-node-farm/starter/node_modules/.bin/is-ci.cmd
 1-node-farm/starter/node_modules/.bin/is-ci.ps1
 1-node-farm/starter/node_modules/.bin/nodemon
