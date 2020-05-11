@@ -5,8 +5,9 @@
 const fs = require('fs');
 const http = require('http');
 const url = require('url');
+const replaceTemplate = require('./modules/replaceTemplate');
 
-// // === fs.readFileSync(path[, options]) // Blocking code execution
+/* // // === fs.readFileSync(path[, options]) // Blocking code execution
 // const textIn = fs.readFileSync('./txt/input.txt', 'utf-8');
 // console.log(textIn);
 // const textOut = `This is what we know about avocado: ${textIn}. \n Created on ${Date.now()}`;
@@ -40,31 +41,14 @@ const url = require('url');
 //   });
 // });
 // console.log('Reading file 1 & 2...');
+*/
 
-
-// Part 1-1 =================================
-const replaceTemplate = (template, productObj) => {
-  //template is HTML in String form(type) , product is Obj
-  let output = template.replace(/{%PRODUCTNAME%}/g, productObj.productName);
-  // output is now new string and other template string to be replace too
-  output = output.replace(/{%IMAGE%}/g, productObj.image);
-  output = output.replace(/{%PRICE%}/g, productObj.price);
-  output = output.replace(/{%FROM%}/g, productObj.from);
-  output = output.replace(/{%NUTRIENTS%}/g, productObj.nutrients);
-  output = output.replace(/{%QUANTITY%}/g, productObj.quantity);
-  output = output.replace(/{%DESCRIPTION%}/g, productObj.description);
-  output = output.replace(/{%ID%}/g, productObj.id);
-
-  if (!productObj.organic) {
-    // output = template.replace(/{%NOT_ORGANIC%}/g, product.organic);
-    output = output.replace(/{%NOT_ORGANIC%}/g, 'not-organic');
-    //        display: none;
-  }
-  return output; //將修改完的String(HTML code)傳出
-}; //end of function replaceTemplate = (template, product)
+/* Part 1-1 ============    const replaceTemplate = (template, productObj) => {
+// .... (function moved to ./modules/replaceTemplate.js as a module to be imported back to this index.js files)
+*/
 
 // Part 1-2 =================================
-// saving the json file in variable
+// saving the json file in GLOBAL variable
 // fs.readFileSync(path[, options])
 const tempOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, 'utf-8');
 const tempCard = fs.readFileSync(`${__dirname}/templates/template-card.html`, 'utf-8');
