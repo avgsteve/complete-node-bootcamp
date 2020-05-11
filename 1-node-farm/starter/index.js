@@ -43,19 +43,19 @@ const url = require('url');
 
 
 // Part 1-1 =================================
-const replaceTemplate = (template, product) => {
+const replaceTemplate = (template, productObj) => {
   //template is HTML in String form(type) , product is Obj
-  let output = template.replace(/{%PRODUCTNAME%}/g, product.productName);
+  let output = template.replace(/{%PRODUCTNAME%}/g, productObj.productName);
   // output is now new string and other template string to be replace too
-  output = output.replace(/{%IMAGE%}/g, product.image);
-  output = output.replace(/{%PRICE%}/g, product.price);
-  output = output.replace(/{%FROM%}/g, product.from);
-  output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
-  output = output.replace(/{%QUANTITY%}/g, product.quantity);
-  output = output.replace(/{%DESCRIPTION%}/g, product.description);
-  output = output.replace(/{%ID%}/g, product.id);
+  output = output.replace(/{%IMAGE%}/g, productObj.image);
+  output = output.replace(/{%PRICE%}/g, productObj.price);
+  output = output.replace(/{%FROM%}/g, productObj.from);
+  output = output.replace(/{%NUTRIENTS%}/g, productObj.nutrients);
+  output = output.replace(/{%QUANTITY%}/g, productObj.quantity);
+  output = output.replace(/{%DESCRIPTION%}/g, productObj.description);
+  output = output.replace(/{%ID%}/g, productObj.id);
 
-  if (!product.organic) {
+  if (!productObj.organic) {
     // output = template.replace(/{%NOT_ORGANIC%}/g, product.organic);
     output = output.replace(/{%NOT_ORGANIC%}/g, 'not-organic');
     //        display: none;
@@ -77,25 +77,32 @@ const dataObj = JSON.parse(data);
 // ======== Server (url event and response)
 const server = http.createServer((req, res) => {
   // http.createServer([options][, requestListener])
-
   //
-  const pathName = req.url;
+  // const pathName = req.url;
+  // 將變數pathName 的內容，在底下改為 destructuring 的方式去宣告
+  // ===
+  const {
+    query,
+    pathname
+  } = url.parse(req.url, true); //see below for the explaination for url.parse method
+  //
   console.log("=======================");
-  console.log(`pathName: ${pathName}`); //to show current requested url
+  console.log(`pathName: ${pathname}`); //to show current requested url
   console.log(`req.url: ${req.url}`); //to show current requested url
   //
-
+  // ---->  url.parse method:
   console.log('---- url.parse():'); //to show current requested url
-  console.log(url.parse(req.url, true)); // ex: 127.0.0.1:8000/product?id=0
+  console.log(url.parse(req.url, true));
+  // ex: 127.0.0.1:8000/product?id=0， the .parse method will return an obj with properties like  search: 'id=0',  query: {id : '0' }, pathname: '/product', ...
+
   /*  ==>  url.parse(urlString[, parseQueryString[, slashesDenoteHost]])
       urlString <string>  ==>   The URL string to parse.
       parseQueryString <boolean> ==>  If true, the query property will always be set to an object returned by the querystring module's parse() method. If false, the query property on the returned URL object will be an unparsed, undecoded string. Default: false.
   */
 
-
   //根據pathName內容進行以下頁面的顯示和處理方式
   // === loads Overview page ===
-  if (pathName === '/' || pathName === '/overview') {
+  if (pathname === '/' || pathname === '/overview') {
     res.writeHead(200, {
       'Content-type': 'text/html'
     });
@@ -110,16 +117,30 @@ const server = http.createServer((req, res) => {
     const output = tempOverview.replace('{%PRODUCT_CARDS%}', cardsHtml);
 
     res.end(output); //template-overview.html
+    /*
+    ref:   request.end([data[, encoding]][, callback])
+    https://nodejs.org/api/http.html#http_request_end_data_encoding_callback
+    */
 
-  } else if (pathName === '/product') {
-    res.end("This is PRODUCT");
+    // =====================
+    // === PRODUCT page ===
+  } else if (pathname === '/product') {
+    res.writeHead(200, {
+      'Content-type': 'text/html'
+    });
+    // decide which property to be used for rendering the page
+    const productObjContent = dataObj[query.id];
+    // dataObj is from JSON file (Array format),
+    // [query.id] is the obj assigned with the obj from the method url.parse(req.url, true)
 
-    // === api page ===
-  } else if (pathName === '/api') {
+    // update the template-product.html (tempProduct) with the value from specific property inside the obj
+    const output = replaceTemplate(tempProduct, productObjContent);
 
-    //callback function的主要內容: 將傳入的JSON檔案顯示在頁面上
-    //(data的內容先寫在global scope裡面就不用每一次進入/api的時候都讀取一次)
+    res.end(output); // send modified template-product.html as in variable "output" to page
 
+    // ================
+    // === API page ===
+  } else if (pathname === '/api') {
     // response.writeHead(statusCode[, statusMessage][, headers])
     //  注意 statusCode 要輸入200
     //    headers <Object> 透過包含header內容的物件，作為 parameter傳入
