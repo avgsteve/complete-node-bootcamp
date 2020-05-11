@@ -6,6 +6,8 @@ const fs = require('fs');
 const http = require('http');
 const url = require('url');
 const replaceTemplate = require('./modules/replaceTemplate');
+//  https://www.npmjs.com/package/slugify
+const slugify = require('slugify');
 
 /* // // === fs.readFileSync(path[, options]) // Blocking code execution
 // const textIn = fs.readFileSync('./txt/input.txt', 'utf-8');
@@ -56,6 +58,25 @@ const tempProduct = fs.readFileSync(`${__dirname}/templates/template-product.htm
 //
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 const dataObj = JSON.parse(data);
+//
+const slugs = dataObj.map(element =>
+  slugify(element.productName, {
+    //{ lower: true} will make all letters lowercase
+    lower: true
+  })
+);
+console.log(slugs); // slugs is the array returned by dataObj.map
+/*[
+ 'fresh-avocados',
+ 'goat-and-sheep-cheese',
+ 'apollo-broccoli',
+ 'baby-carrots',
+ 'sweet-corncobs'
+ ]*/
+//
+console.log(slugify('Fresh Avocados', {
+  lower: true
+})); // fresh-avocados
 
 // Part 2 server response
 // ======== Server (url event and response)
